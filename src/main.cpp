@@ -20,7 +20,7 @@ return R"rawliteral(
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Neo Relay Control</title>
+<title>87PROJECT Relay Control</title>
 <style>
 body{
 background:radial-gradient(circle at top,#061b3a,#010a18);
