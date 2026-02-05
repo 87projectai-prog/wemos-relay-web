@@ -1,10 +1,11 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-const char* ssid = "SMART VEHICLE";
+// ===== WIFI STA =====
+const char* ssid = "SMART_VEHICLE";
 const char* password = "87PROJECT.AI";
 
-// LOW trigger relay
+// ===== RELAY LOW TRIGGER =====
 #define R1 D1
 #define R2 D2
 #define R3 D3
@@ -13,14 +14,14 @@ const char* password = "87PROJECT.AI";
 ESP8266WebServer server(80);
 bool relayState[4] = {0,0,0,0};
 
-// ================= FUTURISTIC UI =================
-String webpage() {
+// ===== FUTURISTIC UI =====
+String webpage(){
 return R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>87PROJECT Relay Control</title>
+<title>Neo Relay Control</title>
 <style>
 body{
 background:radial-gradient(circle at top,#061b3a,#010a18);
@@ -99,47 +100,60 @@ setInterval(refresh,2000);
 )rawliteral";
 }
 
-// ================= HELPER =================
 int relayPin(int r){
  return r==0?R1:r==1?R2:r==2?R3:R4;
 }
 
 void setup(){
-Serial.begin(9600);
+ Serial.begin(9600);
 
-pinMode(R1,OUTPUT);
-pinMode(R2,OUTPUT);
-pinMode(R3,OUTPUT);
-pinMode(R4,OUTPUT);
+ pinMode(R1,OUTPUT);
+ pinMode(R2,OUTPUT);
+ pinMode(R3,OUTPUT);
+ pinMode(R4,OUTPUT);
 
-// relay LOW trigger = OFF HIGH
-digitalWrite(R1,HIGH);
-digitalWrite(R2,HIGH);
-digitalWrite(R3,HIGH);
-digitalWrite(R4,HIGH);
+ // OFF awal (LOW trigger relay)
+ digitalWrite(R1,HIGH);
+ digitalWrite(R2,HIGH);
+ digitalWrite(R3,HIGH);
+ digitalWrite(R4,HIGH);
 
-WiFi.begin(ssid,password);
-while(WiFi.status()!=WL_CONNECTED){
- delay(500);
-}
+ // ===== WIFI CONNECT =====
+ WiFi.begin(ssid,password);
 
-server.on("/",[]{ server.send(200,"text/html",webpage()); });
+ unsigned long t0 = millis();
+ while(WiFi.status()!=WL_CONNECTED && millis()-t0<15000){
+  delay(500);
+  Serial.print(".");
+ }
 
-server.on("/toggle",[]{
- int r=server.arg("relay").toInt()-1;
- relayState[r]=!relayState[r];
- digitalWrite(relayPin(r),relayState[r]?LOW:HIGH);
- server.send(200,"text/plain",relayState[r]?"ON":"OFF");
-});
+ if(WiFi.status()==WL_CONNECTED){
+  Serial.println("\nConnected!");
+  Serial.println(WiFi.localIP());
+ }else{
+  Serial.println("\nFAILED -> AP MODE");
+  WiFi.softAP("WEMOS-RELAY","12345678");
+  Serial.println(WiFi.softAPIP());
+ }
 
-server.on("/status",[]{
- int r=server.arg("relay").toInt()-1;
- server.send(200,"text/plain",relayState[r]?"ON":"OFF");
-});
+ // ===== ROUTES =====
+ server.on("/",[]{ server.send(200,"text/html",webpage()); });
 
-server.begin();
+ server.on("/toggle",[]{
+  int r=server.arg("relay").toInt()-1;
+  relayState[r]=!relayState[r];
+  digitalWrite(relayPin(r),relayState[r]?LOW:HIGH);
+  server.send(200,"text/plain",relayState[r]?"ON":"OFF");
+ });
+
+ server.on("/status",[]{
+  int r=server.arg("relay").toInt()-1;
+  server.send(200,"text/plain",relayState[r]?"ON":"OFF");
+ });
+
+ server.begin();
 }
 
 void loop(){
-server.handleClient();
+ server.handleClient();
 }
