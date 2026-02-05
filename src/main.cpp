@@ -16,8 +16,8 @@ bool relayState[4] = {0,0,0,0};
 String webpage(){
   String html = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
   html += "<title>Neo Relay Control</title>";
-  html += "<style>body{background:#010a18;color:#bde9ff;font-family:Arial;text-align:center;} h1{color:#00c8ff;} ";
-  html += ".card{background:rgba(0,40,90,.6);margin:15px;padding:20px;border-radius:20px;} ";
+  html += "<style>body{background:#010a18;color:#bde9ff;font-family:Arial;text-align:center;} ";
+  html += "h1{color:#00c8ff;} .card{background:rgba(0,40,90,.6);margin:15px;padding:20px;border-radius:20px;} ";
   html += ".btn{width:170px;height:60px;border-radius:40px;border:none;font-size:18px;font-weight:bold;} ";
   html += ".on{background:#00d2ff;color:#001;} .off{background:#081622;color:#777;} ";
   html += "footer{margin-top:20px;color:#00c8ff;}</style></head><body>";
@@ -29,7 +29,7 @@ String webpage(){
   }
 
   html += "<div class='card'>Voice Control<br><br>";
-  html += "<button onclick='startVoice()'>🎤 Bicara</button></div>";
+  html += "<button onclick='startVoice()'>&#x1F3A4; Bicara</button></div>";
   html += "<footer>Created by 87PROJECT.AI</footer>";
 
   html += "<script>";
@@ -45,8 +45,10 @@ String webpage(){
     html += "if(cmd.includes('matikan relay "+String(i)+"')||cmd.includes('relay "+String(i)+" off')) toggleRelay("+String(i)+"); ";
   }
   html += "}; rec.start(); }";
+
   html += "setInterval(()=>{ for(let i=1;i<=4;i++){ fetch('/status?relay='+i).then(r=>r.text()).then(state=>{ ";
   html += "let b=document.getElementById('btn'+i); b.innerHTML=state; b.className='btn '+(state=='ON'?'on':'off'); }); }},1000);";
+
   html += "</script></body></html>";
   return html;
 }
@@ -66,7 +68,7 @@ void setup(){
   unsigned long t0=millis();
   while(WiFi.status()!=WL_CONNECTED && millis()-t0<15000){ delay(500); Serial.print("."); }
   if(WiFi.status()==WL_CONNECTED){ Serial.println("\nConnected!"); Serial.println(WiFi.localIP()); }
-  else{ Serial.println("\nFAILED -> AP MODE"); WiFi.softAP("87PROJECT-RELAY","87Project.ai"); Serial.println(WiFi.softAPIP()); }
+  else{ Serial.println("\nFAILED -> AP MODE"); WiFi.softAP("87PROJECT-RELAY","87Project.ak"); Serial.println(WiFi.softAPIP()); }
 
   server.on("/",[]{ server.send(200,"text/html",webpage()); });
   server.on("/toggle",[]{ 
