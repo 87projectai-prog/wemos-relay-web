@@ -132,7 +132,7 @@ void setup(){
   Serial.println(WiFi.localIP());
  }else{
   Serial.println("\nFAILED -> AP MODE");
-  WiFi.softAP("WEMOS-RELAY","12345678");
+  WiFi.softAP("87PROJECT-RELAY","87PROJECT.AI");
   Serial.println(WiFi.softAPIP());
  }
 
